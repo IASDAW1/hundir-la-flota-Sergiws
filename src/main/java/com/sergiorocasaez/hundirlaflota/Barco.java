@@ -16,6 +16,7 @@ public abstract class Barco {
     
     abstract String getTipo();
     
+    //Devuelve true si todas las partes del barco han sido hundidas
     boolean haSidoHundido(){
         for(int i=0 ; i<this.longitud ; i++){
             if(this.partes[i] == false){
@@ -25,6 +26,7 @@ public abstract class Barco {
         return true;
     }
     
+    //Marca una parte del barco como golpeada
     void hundirParte(int parte){
         this.partes[parte] = true;
     }
