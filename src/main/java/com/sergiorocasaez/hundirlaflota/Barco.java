@@ -5,8 +5,9 @@ public abstract class Barco {
     private final String nombre;
     private boolean[] partes;
     
-    private int fila;
-    private int columna;
+    private int fila; //Su coordenada X (su parte más a la izquierda)
+    private int columna; //Su coordenada Y (su parte más arriba)
+    private String direccion;
     
     Barco(int longitud, String nombre){
         this.longitud = longitud;
@@ -49,5 +50,18 @@ public abstract class Barco {
     
     int getColumna(){
         return columna;
+    }
+    
+    void setDireccion(String direccion){
+        switch(direccion){
+            case "horizontal" -> {this.direccion = "horizontal";}
+            case "vertical" -> {this.direccion = "vertical";}
+            default -> {System.out.println("[ERROR] No se declaró correctamente "
+                    + "la dirección del barco");}
+        }
+    }
+    
+    String getDireccion(){
+        return this.direccion;
     }
 }

@@ -51,36 +51,77 @@ public class Tablero {
     void colocarBarcos(){
         System.out.println("Colocando barcos...");
         int fila, columna;
+        String direccion;
         for(int i=0 ; i<nBarcos ; i++){
             do{
                 fila = (int)(Math.random()*nFilas);
                 columna = (int)(Math.random()*nColumnas);
-            }while(!puedeColocarBarco(barcos[i], fila, columna));
+                direccion = (int)(Math.random()*2) == 0 ? "horizontal" : "vertical";
+            }while(!puedeColocarBarco(barcos[i], fila, columna, direccion));
 
+            barcos[i].setDireccion(direccion);
             colocarBarcoEnTablero(barcos[i], fila, columna);
+            
+            //Print para ver cómo se colocan los barcos
+            for(int k=0 ; k<nFilas ; k++){
+                for(int j=0 ; j<nColumnas ; j++){
+                    System.out.print(tablero[k][j]+" ");
+                }
+                System.out.println();
+            }
+            System.out.println();
+            
         }
     }
     
     //Devuelve true si se puede colocar un barco en la posición indicada
-    private boolean puedeColocarBarco(Barco barco, int fila, int columna){
-        if(fila<0 || fila>=nFilas || columna<0 || columna+barco.getLongitud()-1>=nColumnas){
+    private boolean puedeColocarBarco(Barco barco, int fila, int columna, String direccion){
+        if(fila<0 || columna<0){
             return false;
         }
         
-        for(int i=columna ; i<columna+barco.getLongitud() ; i++){
-            if(tablero[fila][i]=='b'){
+        if(direccion.equals("horizontal")){
+            if(columna+barco.getLongitud()-1>=nColumnas){
                 return false;
             }
+            for(int i=columna ; i<columna+barco.getLongitud() ; i++){
+                if(tablero[fila][i]=='b'){
+                    return false;
+                }
+            }
         }
+        
+        if(direccion.equals("vertical")){
+            if(fila+barco.getLongitud()-1>=nFilas){
+                return false;
+            }
+            for(int i=fila ; i<fila+barco.getLongitud() ; i++){
+                if(tablero[i][columna]=='b'){
+                    return false;
+                }
+            }
+        }
+        
+        
+        
         
         return true;
     }
     
     //Coloca un barco en la posición indicada del tablero
     private void colocarBarcoEnTablero(Barco barco, int fila, int columna){
-        for(int i=columna ; i<columna+barco.getLongitud() ; i++){
-            tablero[fila][i] = 'b';
+        if(barco.getDireccion().equals("horizontal")){
+            for(int i=columna ; i<columna+barco.getLongitud() ; i++){
+                tablero[fila][i] = 'b';
+            }
         }
+        
+        if(barco.getDireccion().equals("vertical")){
+            for(int i=fila ; i<fila+barco.getLongitud() ; i++){
+                tablero[i][columna] = 'b';
+            }
+        }
+        
         
         barco.setFila(fila);
         barco.setColumna(columna);
@@ -123,15 +164,27 @@ public class Tablero {
                 tableroUsuario[fila][columna] = 'X';
                 
                 encontrado = false;
-                while(!encontrado){
+                while(!encontrado){ //Buscamos qué barco ha sido impactado
                     for(Barco barco : barcos){
-                        for(int j=0 ; j<barco.getLongitud() ; j++){
-                            if(barco.getFila()==fila && barco.getColumna()+j==columna){
-                                barco.hundirParte(j);
-                                if(barco.haSidoHundido()){
-                                    System.out.println("¡Barco hundido!");
+                        for(int i=0 ; i<barco.getLongitud() ; i++){
+                            if(barco.getDireccion().equals("horizontal")){
+                                if(barco.getFila()==fila && barco.getColumna()+i==columna){
+                                    barco.hundirParte(i);
+                                    if(barco.haSidoHundido()){
+                                        System.out.println("¡"+barco.getTipo()+" hundido!");
+                                    }
+                                    encontrado = true;
                                 }
-                                encontrado = true;
+                            }
+                            
+                            if(barco.getDireccion().equals("vertical")){
+                                if(barco.getFila()+i==fila && barco.getColumna()==columna){
+                                    barco.hundirParte(i);
+                                    if(barco.haSidoHundido()){
+                                        System.out.println("¡"+barco.getTipo()+" hundido!");
+                                    }
+                                    encontrado = true;
+                                }
                             }
                         }
                     }
@@ -139,9 +192,11 @@ public class Tablero {
             }
             System.out.println();
         }
-        imprimirTablero(); 
+        
+        imprimirTablero(); //Imrpimimos el tablero una vez más al terminar el bucle
    }
     
+    //Pide un número de fila al usuario y lo devuelve
     int pedirFila(){
         int fila;
         try{
@@ -150,7 +205,7 @@ public class Tablero {
         }
         catch(Exception e){
             System.out.println("[ERROR] Escriba un número entero del 1 al "+nFilas);
-            entrada.nextLine();
+            entrada.nextLine(); //Para limpiar el buffer
             fila = pedirFila();
         }
         
@@ -162,6 +217,7 @@ public class Tablero {
         return fila;
     }
     
+    //Pide un número de columna al usuario y lo devuelve
     int pedirColumna(){
         int columna;
         try{
@@ -170,7 +226,7 @@ public class Tablero {
         }
         catch(Exception e){
             System.out.println("[ERROR] Escriba un número entero del 1 al "+nColumnas);
-            entrada.nextLine();
+            entrada.nextLine(); //Para limpiar el buffer
             columna = pedirColumna();
         }
         
